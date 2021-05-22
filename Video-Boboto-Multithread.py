@@ -1,6 +1,7 @@
 #Do NOT delete. Really important stuffs =)
 from vidgear.gears import ScreenGear
 from tkinter import *
+from PIL import Image
 
 import threading
 import PIL.ImageTk as ITk
@@ -10,196 +11,195 @@ import cv2, pyautogui
 # X 1270 - Y 190  Size 50 - Padd 70 
 
 # THE CLASS
-class videoForce:
-    def __init__(self):
-        # Variables
-        self.options = {}
-        self.stream = []
-        self.loop = True
-        self.terminated = False
+def init():
+    # Variables
+    options = {}
+    stream = []
+    loop = True
+    terminated = False
 
-        self.raw_size = 50
-        self.raw_pad = 70
+    raw_size = 50
+    raw_pad = 70
 
-        self.coord_x = 1250
-        self.coord_y = 200
+    coord_x = 1250
+    coord_y = 200
 
-        self.left = False
-        self.left_pass = None
-        self.down = False
-        self.down_pass = None
-        self.up = False
-        self.up_pass = None
-        self.right = False
-        self.right_pass = None
+    left = False
+    left_pass = None
+    down = False
+    down_pass = None
+    up = False
+    up_pass = None
+    right = False
+    right_pass = None
 
-        # Init HSV
-        # Variables for masking
-        # HSV 🟣
-        self.purp_Bot = np.array([115, 115, 130]) #[135, 90, 145]) #[100, 35, 95])    #[115, 115, 130]
-        self.purp_Top = np.array([150, 220, 245]) #[150, 190, 190]) #[155, 210, 250]) #[150, 220, 245]
+    # Init HSV
+    # Variables for masking
+    # HSV 🟣
+    purp_Bot = np.array([115, 115, 130]) #[135, 90, 145]) #[100, 35, 95])    #[115, 115, 130]
+    purp_Top = np.array([150, 220, 245]) #[150, 190, 190]) #[155, 210, 250]) #[150, 220, 245]
 
-        # HSV 🔵
-        self.cian_Bot = np.array([25, 130, 210]) #[30, 135, 190]) #[25, 160, 150]) #[25, 130, 210]
-        self.cian_Top = np.array([35, 255, 255]) #[35, 250, 255]) #[45, 255, 255]) #[35, 255, 255]
+    # HSV 🔵
+    cian_Bot = np.array([25, 130, 210]) #[30, 135, 190]) #[25, 160, 150]) #[25, 130, 210]
+    cian_Top = np.array([35, 255, 255]) #[35, 250, 255]) #[45, 255, 255]) #[35, 255, 255]
 
-        # HSV 🟢
-        self.green_Bot = np.array([55, 85, 200]) #[45, 95, 200]) #[45, 95, 140]) #[55, 85, 200]
-        self.green_Top = np.array([75, 250, 250]) #[70, 245, 255]) #[70, 250, 255]) #[75, 250, 250]
+    # HSV 🟢
+    green_Bot = np.array([55, 85, 200]) #[45, 95, 200]) #[45, 95, 140]) #[55, 85, 200]
+    green_Top = np.array([75, 250, 250]) #[70, 245, 255]) #[70, 250, 255]) #[75, 250, 250]
 
-        # HSV 🔴
-        self.red_Bot = np.array([115, 130, 140]) #[120, 115, 180]) #115, 115, 130]) #[115, 130, 140]
-        self.red_Top = np.array([125, 205, 250]) #[130, 225, 245]) #[150, 220, 245]) #[125, 205, 250]
+    # HSV 🔴
+    red_Bot = np.array([115, 130, 140]) #[120, 115, 180]) #115, 115, 130]) #[115, 130, 140]
+    red_Top = np.array([125, 205, 250]) #[130, 225, 245]) #[150, 220, 245]) #[125, 205, 250]
         
-        # HSV ❗
-        self.test_Bot = np.array([0, 0, 0]) 
-        self.test_Top = np.array([0, 0, 0])
+    # HSV ❗
+    test_Bot = np.array([0, 0, 0]) 
+    test_Top = np.array([0, 0, 0])
                 
 
-    # Function for 4 video streamings sectors
-    def videoStream(self):
-        if(self.loop == False):
-            self.terminated = True
-            return
+# Function for 4 video streamings sectors
+def videoStream():
+    if(loop == False):
+        terminated = True
+        return
+    else:
+        raw = cv2.cvtColor(stream.read(), cv2.COLOR_RGB2HSV)
+            
+        # >>>>>>>>>>>>>>>> Copy this and -1 to the coords
+        sec_0 = raw[0:(raw_size-1), 0:(raw_size-1)]
+        sec_1 = raw[0:(raw_size-1), ((raw_size+raw_pad)-1):((2*(raw_size)+(raw_pad))-1)]
+        sec_2 = raw[0:(raw_size-1), ((2*(raw_size)+2*(raw_pad))-1):((3*(raw_size)+2*(raw_pad))-1)]
+        sec_3 = raw[0:(raw_size-1), ((3*(raw_size)+3*(raw_pad))-1):((4*(raw_size)+3*(raw_pad))-1)]
+            
+        # Tests for arrays in 
+        #print(f'Longitud: {len(scr)}  -  Longitud [0]: {len(scr[0])}')
+        #print(f'Longitud sec: {len(sec_0)}  -  Longitud sec [0]: {len(sec_0[0])}')
+        #print(f'capture: {cap}')
+        #print(f'sector 1: {sec_1}')
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>> PURPLE-LEFT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_0), purp_Bot, purp_Top)
+
+        if(np.mean(procc) > 50):
+            left = True
+            if (left_pass != left):
+                left_pass = left
+                #print('Left on')
+                pyautogui.keyDown('left')
         else:
-            raw = cv2.cvtColor(self.stream.read(), cv2.COLOR_RGB2HSV)
+            left = False
+            if (left_pass != left):
+                left_pass = left
+                #print('Left off')
+                pyautogui.keyUp('left')
             
-            # >>>>>>>>>>>>>>>> Copy this and -1 to the coords
-            sec_0 = raw[0:(self.raw_size-1), 0:(self.raw_size-1)]
-            sec_1 = raw[0:(self.raw_size-1), ((self.raw_size+self.raw_pad)-1):((2*(self.raw_size)+(self.raw_pad))-1)]
-            sec_2 = raw[0:(self.raw_size-1), ((2*(self.raw_size)+2*(self.raw_pad))-1):((3*(self.raw_size)+2*(self.raw_pad))-1)]
-            sec_3 = raw[0:(self.raw_size-1), ((3*(self.raw_size)+3*(self.raw_pad))-1):((4*(self.raw_size)+3*(self.raw_pad))-1)]
+        #img = Image.fromarray(procc)
+        #imgtk = ITk.PhotoImage(image=img)
+        #lbls_img[0].imgtk = imgtk
+        #lbls_img[0].configure(image=imgtk)
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>> CIAN-DOWN <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_1), cian_Bot, cian_Top)
+
+        if(np.mean(procc) > 50):
+            down = True
+            if (down_pass != down):
+                down_pass = down
+                #print('Down on')
+                pyautogui.keyDown('down')
+        else:
+            down = False
+            if (down_pass != down):
+                down_pass = down
+                #print('Down off')
+                pyautogui.keyUp('down')
             
-            # Tests for arrays in 
-            #print(f'Longitud: {len(scr)}  -  Longitud [0]: {len(scr[0])}')
-            #print(f'Longitud sec: {len(sec_0)}  -  Longitud sec [0]: {len(sec_0[0])}')
-            #print(f'capture: {cap}')
-            #print(f'sector 1: {sec_1}')
-
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>> PURPLE-LEFT <<<<<<<<<<<<<<<<<<<<<<<<<<<
-            procc = cv2.inRange(np.array(sec_0), self.purp_Bot, self.purp_Top)
-
-            if(np.mean(procc) > 50):
-                self.left = True
-                if (self.left_pass != self.left):
-                    self.left_pass = self.left
-                    #print('Left on')
-                    pyautogui.keyDown('left')
-            else:
-                self.left = False
-                if (self.left_pass != self.left):
-                    self.left_pass = self.left
-                    #print('Left off')
-                    pyautogui.keyUp('left')
-            
-            #img = Image.fromarray(procc)
-            #imgtk = ITk.PhotoImage(image=img)
-            #lbls_img[0].imgtk = imgtk
-            #lbls_img[0].configure(image=imgtk)
-
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>> CIAN-DOWN <<<<<<<<<<<<<<<<<<<<<<<<<<<
-            procc = cv2.inRange(np.array(sec_1), self.cian_Bot, self.cian_Top)
-
-            if(np.mean(procc) > 50):
-                self.down = True
-                if (self.down_pass != self.down):
-                    self.down_pass = self.down
-                    #print('Down on')
-                    pyautogui.keyDown('down')
-            else:
-                self.down = False
-                if (self.down_pass != self.down):
-                    self.down_pass = self.down
-                    #print('Down off')
-                    pyautogui.keyUp('down')
-            
-            #img = Image.fromarray(procc)
-            #imgtk = ITk.PhotoImage(image=img)
-            #lbls_img[1].imgtk = imgtk
-            #lbls_img[1].configure(image=imgtk)
+        #img = Image.fromarray(procc)
+        #imgtk = ITk.PhotoImage(image=img)
+        #lbls_img[1].imgtk = imgtk
+        #lbls_img[1].configure(image=imgtk)
         
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>> GREEN-UP <<<<<<<<<<<<<<<<<<<<<<<<<<<
-            procc = cv2.inRange(np.array(sec_2), self.green_Bot, self.green_Top)
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>> GREEN-UP <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_2), green_Bot, green_Top)
 
-            if(np.mean(procc) > 50):
-                self.up = True
-                if (self.up_pass != self.up):
-                    self.up_pass = self.up
-                    #print('Up on')
-                    pyautogui.keyDown('up')
-            else:
-                self.up = False
-                if (self.up_pass != self.up):
-                    self.up_pass = self.up
-                    #print('Up off')
-                    pyautogui.keyUp('up')
+        if(np.mean(procc) > 50):
+            up = True
+            if (up_pass != up):
+                up_pass = up
+                #print('Up on')
+                pyautogui.keyDown('up')
+        else:
+            up = False
+            if (up_pass != up):
+                up_pass = up
+                #print('Up off')
+                pyautogui.keyUp('up')
             
-            #img = Image.fromarray(procc)
-            #imgtk = ITk.PhotoImage(image=img)
-            #lbls_img[2].imgtk = imgtk
-            #lbls_img[2].configure(image=imgtk)
+        #img = Image.fromarray(procc)
+        #imgtk = ITk.PhotoImage(image=img)
+        #lbls_img[2].imgtk = imgtk
+        #lbls_img[2].configure(image=imgtk)
 
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>> RED-RIGHT <<<<<<<<<<<<<<<<<<<<<<<<<<<
-            procc = cv2.inRange(np.array(sec_3), self.red_Bot, self.red_Top)
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>> RED-RIGHT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_3), red_Bot, red_Top)
 
-            if(np.mean(procc) > 50):
-                self.right = True
-                if (self.right_pass != self.right):
-                    self.right_pass = self.right
-                    #print('Right on')
-                    pyautogui.keyDown('right')
-            else:
-                self.right = False
-                if (self.right_pass != self.right):
-                    self.right_pass = self.right
-                    #print('Right off')
-                    pyautogui.keyUp('right')
+        if(np.mean(procc) > 50):
+            right = True
+            if (right_pass != right):
+                right_pass = right
+                #print('Right on')
+                pyautogui.keyDown('right')
+        else:
+            right = False
+            if (right_pass != right):
+                right_pass = right
+                #print('Right off')
+                pyautogui.keyUp('right')
             
 
-            #img = Image.fromarray(procc)
-            #imgtk = ITk.PhotoImage(image=img)
-            #lbls_img[3].imgtk = imgtk
-            #lbls_img[3].configure(image=imgtk)
+        #img = Image.fromarray(procc)
+        #imgtk = ITk.PhotoImage(image=img)
+        #lbls_img[3].imgtk = imgtk
+        #lbls_img[3].configure(image=imgtk)
 
-            lbls_img[3].after(1, self.videoStream)
+        lbls_img[3].after(1, videoStream)
         
     
-    def start(self):
-        self.options = {
-            "top": self.coord_y,
-            "left": self.coord_x,
-            "width": ((4*self.raw_size)+(3*self.raw_pad)),
-            "height": self.raw_size
-        }
-        self.stream = ScreenGear(monitor=1, logging=True, **self.options).start()
-        self.loop = True
-        self.videoStream()
+def start():
+    options = {
+        "top": coord_y,
+        "left": coord_x,
+        "width": ((4*raw_size)+(3*raw_pad)),
+        "height": raw_size
+    }
+    stream = ScreenGear(monitor=1, logging=True, **options).start()
+    loop = True
+    videoStream()
     
-    def stop(self):
-        self.stream = []
-        self.loop = False
+def stop():
+    stream = []
+    loop = False
     
-    def changeCoord(self):
-        self.stop()
-        if(self.terminated == True):
-            self.coord_x = int(spn_B1.get())
-            self.coord_y = int(spn_B2.get())
+def changeCoord():
+    stop()
+    if(terminated == True):
+        coord_x = int(spn_B1.get())
+        coord_y = int(spn_B2.get())
     
-    def changeSizePad(self):
-        self.stop()
-        if(self.terminated == True):
-            self.raw_size = int(spn_B3.get())
-            self.raw_pad = int(spn_B4.get())
+def changeSizePad():
+    stop()
+    if(terminated == True):
+        raw_size = int(spn_B3.get())
+        raw_pad = int(spn_B4.get())
 
-    # Test Color
-    def changeColor(self):
-        self.test_Bot = np.array([int(spn_test_B1.get()), int(spn_test_B2.get()), int(spn_test_B3.get())])
-        self.test_Top = np.array([int(spn_test_B4.get()), int(spn_test_B5.get()), int(spn_test_B6.get())])
+# Test Color
+def changeColor():
+    test_Bot = np.array([int(spn_test_B1.get()), int(spn_test_B2.get()), int(spn_test_B3.get())])
+    test_Top = np.array([int(spn_test_B4.get()), int(spn_test_B5.get()), int(spn_test_B6.get())])
     
-        print (
-            f'Test Bottom: [{self.test_Bot[0]}, {self.test_Bot[1]}, {self.test_Bot[2]}] - '+
-            f'Test Top: [{self.test_Top[0]}, {self.test_Top[1]}, {self.test_Top[2]}]'
-        )
+    print (
+        f'Test Bottom: [{test_Bot[0]}, {test_Bot[1]}, {test_Bot[2]}] - '+
+        f'Test Top: [{test_Top[0]}, {test_Top[1]}, {test_Top[2]}]'
+    )
 
 
 if(__name__ == '__main__'):
