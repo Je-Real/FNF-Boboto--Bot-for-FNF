@@ -7,16 +7,22 @@ import threading
 import PIL.ImageTk as ITk
 import numpy as np
 import cv2, pyautogui
+from os import error
 
 # X 1270 - Y 190  Size 50 - Padd 70
 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Variables <<<<<<<<<<<<<<<<<<<<<<<<<<<
 procc_0 = None
 procc_1 = None
 procc_2 = None
+procc_3 = None
+procc_4 = None
 
 sec_0 = None
+sec_1 = None
+sec_2 = None
+sec_3 = None
 
-# Variables
 options = {}
 stream = []
 loop = False
@@ -38,7 +44,7 @@ up_pass = None
 right = False
 right_pass = None
 
-# Init RGB(?)
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Init RGB(?) <<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Variables for masking
 # RGB(?) 🟣
 purp_Bot = np.array([135, 35, 160, 255])
@@ -63,120 +69,156 @@ test_Top = np.array([0, 0, 0, 255])
 
 # Function for 4 video streamings sectors
 def videoStream():
-    global raw, sec_0
+    global raw, sec_0, sec_1, sec_2, sec_3
+    
+    print('\033[;35m'+'[t] Enter loop'+'\033[0;37m')
 
     while(True):
         if(loop == False):
             break
 
         raw = stream.read()
+        # >>>>>>>>>>>>>>>> Copy this and -1 to the coords
         sec_0 = raw[0:(raw_size-1), 0:(raw_size-1)]
+        sec_1 = raw[0:(raw_size-1), ((raw_size+raw_pad)-1):((2*(raw_size)+(raw_pad))-1)]
+        sec_2 = raw[0:(raw_size-1), ((2*(raw_size)+2*(raw_pad))-1):((3*(raw_size)+2*(raw_pad))-1)]
+        sec_3 = raw[0:(raw_size-1), ((3*(raw_size)+3*(raw_pad))-1):((4*(raw_size)+3*(raw_pad))-1)]
     
-    print('\033[;35m'+'Loop Broken')
+    print('\033[;36m'+'[t] Loop Broken'+'\033[0;37m')
        
-    # >>>>>>>>>>>>>>>> Copy this and -1 to the coords
-    #sec_1 = raw[0:(raw_size-1), ((raw_size+raw_pad)-1):((2*(raw_size)+(raw_pad))-1)]
-    #sec_2 = raw[0:(raw_size-1), ((2*(raw_size)+2*(raw_pad))-1):((3*(raw_size)+2*(raw_pad))-1)]
-    #sec_3 = raw[0:(raw_size-1), ((3*(raw_size)+3*(raw_pad))-1):((4*(raw_size)+3*(raw_pad))-1)]
 
 def sector1():
-    global left, right, up, down, left_pass, right_pass, up_pass, down_pass
+    global left, left_pass
 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>> PURPLE-LEFT <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    procc = cv2.inRange(np.array(sec_0), purp_Bot, purp_Top)
-    #procc = sec_0
+    if(sec_3 is not None and loop):
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>> PURPLE-LEFT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_0), purp_Bot, purp_Top)
+        #procc = sec_0
 
-    if(np.mean(procc) > 50):
-        left = True
-        if (left_pass != left):
-            left_pass = left
-            #print('Left on')
-            #pyautogui.keyDown('left')
+        if(np.mean(procc) > 50):
+            left = True
+            if (left_pass != left):
+                left_pass = left
+                #print('Left on')
+                #pyautogui.keyDown('left')
+        else:
+            left = False
+            if (left_pass != left):
+                left_pass = left
+                #print('Left off')
+                #pyautogui.keyUp('left')
+                
+        img = Image.fromarray(procc)
+        imgtk = ITk.PhotoImage(image=img)
+        lbls_img[0].imgtk = imgtk
+        lbls_img[0].configure(image=imgtk)
+        lbls_img[0].after(1, sector1)
     else:
-        left = False
-        if (left_pass != left):
-            left_pass = left
-            #print('Left off')
-            #pyautogui.keyUp('left')
-            
-    img = Image.fromarray(procc)
-    imgtk = ITk.PhotoImage(image=img)
-    lbls_img[0].imgtk = imgtk
-    lbls_img[0].configure(image=imgtk)
-    lbls_img[0].after(1, sector1)
+        print('\033[;33m'+'[i] Stopping (From sector 1)'+'\033[0;37m')
+        stop()
+        return
 
     
 def sector2():
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>> CIAN-DOWN <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    procc = cv2.inRange(np.array(sec_1), cian_Bot, cian_Top)
+    global down, down_pass
 
-    if(np.mean(procc) > 50):
-        down = True
-        if (down_pass != down):
-            down_pass = down
-            #print('Down on')
-            #pyautogui.keyDown('down')
+    if(sec_1 is not None and loop):
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>> CIAN-DOWN <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_1), cian_Bot, cian_Top)
+
+        if(np.mean(procc) > 50):
+            down = True
+            if (down_pass != down):
+                down_pass = down
+                #print('Down on')
+                #pyautogui.keyDown('down')
+        else:
+            down = False
+            if (down_pass != down):
+                down_pass = down
+                #print('Down off')
+                #pyautogui.keyUp('down')
+                
+        img = Image.fromarray(procc)
+        imgtk = ITk.PhotoImage(image=img)
+        lbls_img[1].imgtk = imgtk
+        lbls_img[1].configure(image=imgtk)
+        lbls_img[1].after(1, sector2)
     else:
-        down = False
-        if (down_pass != down):
-            down_pass = down
-            #print('Down off')
-            #pyautogui.keyUp('down')
-            
-    img = Image.fromarray(procc)
-    imgtk = ITk.PhotoImage(image=img)
-    lbls_img[1].imgtk = imgtk
-    lbls_img[1].configure(image=imgtk)
-        
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>> GREEN-UP <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    procc = cv2.inRange(np.array(sec_2), green_Bot, green_Top)
+        print('\033[;33m'+'[i] Stopping (From sector 2)'+'\033[0;37m')
+        stop()
+        return
 
-    if(np.mean(procc) > 50):
-        up = True
-        if (up_pass != up):
-            up_pass = up
-            #print('Up on')
-            #pyautogui.keyDown('up')
+
+def sector3():
+    global up, up_pass
+
+    if(sec_2 is not None and loop):
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>> GREEN-UP <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_2), green_Bot, green_Top)
+
+        if(np.mean(procc) > 50):
+            up = True
+            if (up_pass != up):
+                up_pass = up
+                #print('Up on')
+                #pyautogui.keyDown('up')
+        else:
+            up = False
+            if (up_pass != up):
+                up_pass = up
+                #print('Up off')
+                #pyautogui.keyUp('up')
+                
+        img = Image.fromarray(procc)
+        imgtk = ITk.PhotoImage(image=img)
+        lbls_img[2].imgtk = imgtk
+        lbls_img[2].configure(image=imgtk)
+        lbls_img[2].after(1, sector3)
     else:
-        up = False
-        if (up_pass != up):
-            up_pass = up
-            #print('Up off')
-            #pyautogui.keyUp('up')
-            
-    img = Image.fromarray(procc)
-    imgtk = ITk.PhotoImage(image=img)
-    lbls_img[2].imgtk = imgtk
-    lbls_img[2].configure(image=imgtk)
+        print('\033[;33m'+'[i] Stopping (From sector 3)'+'\033[0;37m')
+        stop()
+        return
 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>> RED-RIGHT <<<<<<<<<<<<<<<<<<<<<<<<<<<
-    procc = cv2.inRange(np.array(sec_3), red_Bot, red_Top)
 
-    if(np.mean(procc) > 50):
-        right = True
-        if (right_pass != right):
-            right_pass = right
-            #print('Right on')
-            #pyautogui.keyDown('right')
+def sector4():
+    global right, right_pass
+
+    if(sec_3 is not None and loop):
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>> RED-RIGHT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+        procc = cv2.inRange(np.array(sec_3), red_Bot, red_Top)
+
+        if(np.mean(procc) > 50):
+            right = True
+            if (right_pass != right):
+                right_pass = right
+                #print('Right on')
+                #pyautogui.keyDown('right')
+        else:
+            right = False
+            if (right_pass != right):
+                right_pass = right
+                #print('Right off')
+                #pyautogui.keyUp('right')
+                
+
+        img = Image.fromarray(procc)
+        imgtk = ITk.PhotoImage(image=img)
+        lbls_img[3].imgtk = imgtk
+        lbls_img[3].configure(image=imgtk)
+
+        lbls_img[3].after(1, sector4)
     else:
-        right = False
-        if (right_pass != right):
-            right_pass = right
-            #print('Right off')
-            #pyautogui.keyUp('right')
-            
-
-    img = Image.fromarray(procc)
-    imgtk = ITk.PhotoImage(image=img)
-    lbls_img[3].imgtk = imgtk
-    lbls_img[3].configure(image=imgtk)
+        print('\033[;33m'+'[i] Stopping (From sector 4)'+'\033[0;37m')
+        stop()
+        return
         
     
 def start():
-    global options, loop, stream, procc_0, procc_1
+    global options, loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4
 
-    if (loop):
-        return 0
+    if (loop == True):
+        return
     
     options = {
         "top": coord_y,
@@ -187,22 +229,46 @@ def start():
     loop = True
     stream = ScreenGear(monitor=1, logging=True, **options).start()
 
-
     procc_0 = threading.Thread(target=videoStream)
     procc_1 = threading.Thread(target=sector1)
+    procc_2 = threading.Thread(target=sector2)
+    #procc_3 = threading.Thread(target=sector3)
+    #procc_4 = threading.Thread(target=sector4)
 
     procc_0.start()
+    pyautogui.sleep(0.5)
     procc_1.start()
+    procc_2.start()
+    #procc_3.start()
+    #procc_4.start()
     
 def stop():
-    global loop, stream
+    global loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4
+
+    loop = False
 
     try:
         stream.stop()
     except:
-        print('Already stopped!')
+        print('\033[;33m'+'[i] Stream already stopped!'+'\033[0;37m')
+    
+    try:
+        procc_0.join()
+        procc_1.join()
+        procc_2.join()
+        #procc_3.join()
+        #procc_4.join()
+    except error:
+        print('\033[;31m'+'[w] Error. Something went wrong with multithreading.join()'+'\033[0;37m')
+        print(error)
+    finally:
+        procc_0 = None
+        procc_1 = None
+        procc_2 = None
+        procc_3 = None
+        procc_4 = None
+
     stream = []
-    loop = False
     
 def changeCoord():
     global coord_x, coord_y, loop
@@ -370,7 +436,4 @@ if(__name__ == '__main__'):
 
     window.mainloop()
 
-    try:
-        stream.stop()
-    except:
-        pass
+    stop()
