@@ -243,32 +243,34 @@ def start():
     #procc_4.start()
     
 def stop():
-    global loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4
+    global loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4, terminated
 
     loop = False
 
-    try:
-        stream.stop()
-    except:
-        print('\033[;33m'+'[i] Stream already stopped!'+'\033[0;37m')
-    
-    try:
-        procc_0.join()
-        procc_1.join()
-        procc_2.join()
-        #procc_3.join()
-        #procc_4.join()
-    except error:
-        print('\033[;31m'+'[w] Error. Something went wrong with multithreading.join()'+'\033[0;37m')
-        print(error)
-    finally:
-        procc_0 = None
-        procc_1 = None
-        procc_2 = None
-        procc_3 = None
-        procc_4 = None
+    if(terminated == False):
+        try:
+            stream.stop()
+        except:
+            print('\033[;33m'+'[i] Stream already stopped!'+'\033[0;37m')
+        
+        try:
+            procc_0.join()
+            procc_1.join()
+            procc_2.join()
+            #procc_3.join()
+            #procc_4.join()
+        except error:
+            print('\033[;31m'+'[w] Error. Something went wrong with multithreading.join()'+'\033[0;37m')
+            print(error)
+        finally:
+            procc_0 = None
+            procc_1 = None
+            procc_2 = None
+            procc_3 = None
+            procc_4 = None
 
-    stream = []
+        stream = []
+        terminated = True
     
 def changeCoord():
     global coord_x, coord_y, loop
