@@ -57,8 +57,8 @@ cian_Bot = np.array([190, 120, 0, 255])
 cian_Top = np.array([255, 255, 80, 255])
 
 # RGB(?) 🟢
-green_Bot = np.array([0, 135, 20, 255])
-green_Top = np.array([95, 255, 90, 255])
+green_Bot = np.array([0, 120, 10, 255])
+green_Top = np.array([100, 255, 95, 255])
 
 # RGB(?) 🔴
 red_Bot = np.array([45, 35, 160, 255])
@@ -102,14 +102,14 @@ def sector1():
             left = True
             if (left_pass != left):
                 left_pass = left
-                print('\033[1;35m'+'Left on'+'\033[0;37m')
-                #pyautogui.keyDown('left')
+                #print('\033[1;35m'+'Left on'+'\033[0;37m')
+                pyautogui.keyDown('left')
         else:
             left = False
             if (left_pass != left):
                 left_pass = left
-                print('\033[;35m'+'Left off'+'\033[0;37m')
-                #pyautogui.keyUp('left')
+                #print('\033[;35m'+'Left off'+'\033[0;37m')
+                pyautogui.keyUp('left')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
@@ -124,14 +124,14 @@ def sector1():
             down = True
             if (down_pass != down):
                 down_pass = down
-                print('\033[1;36m'+'Down on'+'\033[0;37m')
-                #pyautogui.keyDown('down')
+                #print('\033[1;36m'+'Down on'+'\033[0;37m')
+                pyautogui.keyDown('down')
         else:
             down = False
             if (down_pass != down):
                 down_pass = down
-                print('\033[;36m'+'Down off'+'\033[0;37m')
-                #pyautogui.keyUp('down')
+                #print('\033[;36m'+'Down off'+'\033[0;37m')
+                pyautogui.keyUp('down')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
@@ -154,14 +154,14 @@ def sector2():
             up = True
             if (up_pass != up):
                 up_pass = up
-                print('\033[1;32m'+'Up on'+'\033[0;37m')
-                #pyautogui.keyDown('up')
+                #print('\033[1;32m'+'Up on'+'\033[0;37m')
+                pyautogui.keyDown('up')
         else:
             up = False
             if (up_pass != up):
                 up_pass = up
-                print('\033[;32m'+'Up off'+'\033[0;37m')
-                #pyautogui.keyUp('up')
+                #print('\033[;32m'+'Up off'+'\033[0;37m')
+                pyautogui.keyUp('up')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
@@ -176,14 +176,14 @@ def sector2():
             right = True
             if (right_pass != right):
                 right_pass = right
-                print('\033[1;31m'+'Right on'+'\033[0;37m')
-                #pyautogui.keyDown('right')
+                #print('\033[1;31m'+'Right on'+'\033[0;37m')
+                pyautogui.keyDown('right')
         else:
             right = False
             if (right_pass != right):
                 right_pass = right
-                print('\033[;31m'+'Right off'+'\033[0;37m')
-                #pyautogui.keyUp('right')
+                #print('\033[;31m'+'Right off'+'\033[0;37m')
+                pyautogui.keyUp('right')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
