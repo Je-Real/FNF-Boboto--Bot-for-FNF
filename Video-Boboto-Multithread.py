@@ -8,6 +8,7 @@ import PIL.ImageTk as ITk
 import numpy as np
 import cv2, pyautogui
 from os import error
+import time
 
 # X 1270 - Y 190  Size 50 - Padd 70
 
@@ -72,8 +73,7 @@ test_Top = np.array([0, 0, 0, 255])
 def videoStream():
     global raw, sec_0, sec_1, sec_2, sec_3
     
-    pyautogui.sleep(0.5)
-    print('\033[;35m'+'[t] Enter loop'+'\033[0;37m')
+    print('\033[;35m'+'[i] Loop in!'+'\033[0;37m')
 
     while(True):
         if(loop == False):
@@ -86,12 +86,12 @@ def videoStream():
         sec_2 = raw[0:(raw_size-1), ((2*(raw_size)+2*(raw_pad))-1):((3*(raw_size)+2*(raw_pad))-1)]
         sec_3 = raw[0:(raw_size-1), ((3*(raw_size)+3*(raw_pad))-1):((4*(raw_size)+3*(raw_pad))-1)]
     
-    pyautogui.sleep(0.5)
-    print('\033[;36m'+'[t] Loop Broken'+'\033[0;37m')
+    time.sleep(0.5)
+    print('\033[;36m'+'[i] Loop out!'+'\033[0;37m')
        
 
 def sector1():
-    global left, left_pass
+    global left, left_pass, down, down_pass
 
     if(sec_3 is not None and loop):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>> PURPLE-LEFT <<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -102,29 +102,20 @@ def sector1():
             left = True
             if (left_pass != left):
                 left_pass = left
-                #print('Left on')
+                print('\033[1;35m'+'Left on'+'\033[0;37m')
                 #pyautogui.keyDown('left')
         else:
             left = False
             if (left_pass != left):
                 left_pass = left
-                #print('Left off')
+                print('\033[;35m'+'Left off'+'\033[0;37m')
                 #pyautogui.keyUp('left')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
         lbls_img[0].imgtk = imgtk
         lbls_img[0].configure(image=imgtk)
-        lbls_img[0].after(1, sector1)
-    else:
-        if(terminated == False):
-            theSwitch(req=1)
-        return
-
     
-def sector2():
-    global down, down_pass
-
     if(sec_1 is not None and loop):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>> CIAN-DOWN <<<<<<<<<<<<<<<<<<<<<<<<<<<
         procc = cv2.inRange(np.array(sec_1), cian_Bot, cian_Top)
@@ -133,28 +124,27 @@ def sector2():
             down = True
             if (down_pass != down):
                 down_pass = down
-                #print('Down on')
+                print('\033[1;36m'+'Down on'+'\033[0;37m')
                 #pyautogui.keyDown('down')
         else:
             down = False
             if (down_pass != down):
                 down_pass = down
-                #print('Down off')
+                print('\033[;36m'+'Down off'+'\033[0;37m')
                 #pyautogui.keyUp('down')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
         lbls_img[1].imgtk = imgtk
         lbls_img[1].configure(image=imgtk)
-        lbls_img[1].after(1, sector2)
+        lbls_img[1].after(1, sector1)
     else:
-        if(terminated == False):
-            theSwitch(req=2)
+        print('\033[;33m'+'[i] Sector 1 out'+'\033[0;37m')
         return
 
 
-def sector3():
-    global up, up_pass
+def sector2():
+    global up, up_pass, right, right_pass
 
     if(sec_2 is not None and loop):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>> GREEN-UP <<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -164,28 +154,19 @@ def sector3():
             up = True
             if (up_pass != up):
                 up_pass = up
-                #print('Up on')
+                print('\033[1;32m'+'Up on'+'\033[0;37m')
                 #pyautogui.keyDown('up')
         else:
             up = False
             if (up_pass != up):
                 up_pass = up
-                #print('Up off')
+                print('\033[;32m'+'Up off'+'\033[0;37m')
                 #pyautogui.keyUp('up')
                 
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
         lbls_img[2].imgtk = imgtk
         lbls_img[2].configure(image=imgtk)
-        lbls_img[2].after(1, sector3)
-    else:
-        if(terminated == False):
-            theSwitch(req=3)
-        return
-
-
-def sector4():
-    global right, right_pass
 
     if(sec_3 is not None and loop):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>> RED-RIGHT <<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -195,53 +176,56 @@ def sector4():
             right = True
             if (right_pass != right):
                 right_pass = right
-                #print('Right on')
+                print('\033[1;31m'+'Right on'+'\033[0;37m')
                 #pyautogui.keyDown('right')
         else:
             right = False
             if (right_pass != right):
                 right_pass = right
-                #print('Right off')
+                print('\033[;31m'+'Right off'+'\033[0;37m')
                 #pyautogui.keyUp('right')
                 
-
         img = Image.fromarray(procc)
         imgtk = ITk.PhotoImage(image=img)
         lbls_img[3].imgtk = imgtk
         lbls_img[3].configure(image=imgtk)
 
-        lbls_img[3].after(1, sector4)
+        lbls_img[3].after(1, sector2)
     else:
-        if(terminated == False):
-            theSwitch(req=4)
+        print('\033[;33m'+'[i] Sector 2 out'+'\033[0;37m')
         return
         
     
-def theSwitch(closing = False, req = None):
+def theSwitch(closing):
     global options, loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4, terminated, lever
 
-    if(lever == False and terminated):
-        if(loop == True):
+    if((lever == False) and (terminated) and (closing != True)):        # Run
+        if(loop == True):   # In the rare case that it happens....
             print('\033[;36m'+'[i] Skipping theSwitch. loop is True.'+'\033[0;37m')
             return
         
+        loop = True
+        
+        # Start streaming
         options = {
             "top": coord_y,
             "left": coord_x,
             "width": ((4*raw_size)+(3*raw_pad)),
             "height": raw_size
         }
-        loop = True
         stream = ScreenGear(monitor=1, logging=True, **options).start()
 
+        # Init all processes
         procc_0 = threading.Thread(target=videoStream)
         procc_1 = threading.Thread(target=sector1)
         procc_2 = threading.Thread(target=sector2)
         #procc_3 = threading.Thread(target=sector3)
         #procc_4 = threading.Thread(target=sector4)
 
+        # Start all processes
         procc_0.start()
-        pyautogui.sleep(0.5)
+
+        time.sleep(0.5)
         procc_1.start()
         procc_2.start()
         #procc_3.start()
@@ -251,22 +235,29 @@ def theSwitch(closing = False, req = None):
         terminated = False
         lever = True
 
+        btn1['bg']='#89f78d'
+
         print('\033[4;34m'+'[i] Inicializated correctly'+'\033[0;37m')
         return
-    elif((lever and terminated == False) or (closing)):
+
+    elif((lever and terminated == False) or (closing == True)):         # Stop
         loop = False
 
-        if(req is not None):
-            print('\033[;33m'+f'[i] Stop requested (From sector {req})'+'\033[0;37m')
-
         if(terminated == False):
+            # Try to stop the streaming and set variable to nothing
             try:
                 stream.stop()
             except:
                 print('\033[;33m'+'[i] Stream already stopped.'+'\033[0;37m')
             finally:
                 stream = []
-            
+
+            try:
+                btn1['bg']='#f66060'
+            except:
+                pass
+                
+            # Try to join all processes and set variables to zeros
             try:
                 procc_0.join()
                 procc_1.join()
@@ -274,7 +265,8 @@ def theSwitch(closing = False, req = None):
                 #procc_3.join()
                 #procc_4.join()
             except error:
-                print('\033[;31m'+'[w] Can not multithreading.join(); Maybe were already stopped.'+'\033[0;37m')
+                print('\033[;31m'+'[w] Can not multithreading.join();'+
+                    ' Maybe were already stopped.'+'\033[0;37m')
                 #print(error)
             finally:
                 procc_0 = 0
@@ -283,20 +275,23 @@ def theSwitch(closing = False, req = None):
                 procc_3 = 0
                 procc_4 = 0
             
+            print('\033[4;34m'+'[i] Stopped correctly'+'\033[0;37m')
+
             # Changing lever
             terminated = True
             lever = False
 
-            print('\033[4;34m'+'[i] Stopped correctly'+'\033[0;37m')
-            return
+        return
     else:
-        print('\033[;36m'+'[i] theSwitch did not enter to any of the conditions. May be because terminated var.'+'\033[0;37m')
+        # Wtf? who do you get in here?
+        print('\033[;36m'+'[i] theSwitch did not enter to any of the stablished conditions.'+
+            ' May be because terminated var.'+'\033[0;37m')
         return
     
 def changeCoord():
     global coord_x, coord_y, loop
 
-    theSwitch()
+    theSwitch(True)
     if(loop == False):
         coord_x = int(spn_B1.get())
         coord_y = int(spn_B2.get())
@@ -304,7 +299,7 @@ def changeCoord():
 def changeSizePad():
     global raw_pad, raw_size
 
-    theSwitch()
+    theSwitch(True)
     if(loop == False):
         raw_size = int(spn_B3.get())
         raw_pad = int(spn_B4.get())
@@ -355,7 +350,7 @@ if(__name__ == '__main__'):
     f2 = Frame(f_c_0)
     f3 = Frame(f_c_0)
 
-    btn1 = Button(f2, text='Start / Stop', command = theSwitch)
+    btn1 = Button(f2, text='Start / Stop', command = lambda: theSwitch(None))
 
     btn1.pack(padx=20)
 
@@ -456,4 +451,4 @@ if(__name__ == '__main__'):
 
     window.mainloop()
 
-    theSwitch(closing=True)
+    theSwitch(True)
