@@ -12,11 +12,11 @@ from os import error
 # X 1270 - Y 190  Size 50 - Padd 70
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> Variables <<<<<<<<<<<<<<<<<<<<<<<<<<<
-procc_0 = None
-procc_1 = None
-procc_2 = None
-procc_3 = None
-procc_4 = None
+procc_0 = 0
+procc_1 = 0
+procc_2 = 0
+procc_3 = 0
+procc_4 = 0
 
 sec_0 = None
 sec_1 = None
@@ -26,7 +26,8 @@ sec_3 = None
 options = {}
 stream = []
 loop = False
-terminated = False
+terminated = True
+lever = False
 
 raw = []
 
@@ -71,6 +72,7 @@ test_Top = np.array([0, 0, 0, 255])
 def videoStream():
     global raw, sec_0, sec_1, sec_2, sec_3
     
+    pyautogui.sleep(0.5)
     print('\033[;35m'+'[t] Enter loop'+'\033[0;37m')
 
     while(True):
@@ -84,6 +86,7 @@ def videoStream():
         sec_2 = raw[0:(raw_size-1), ((2*(raw_size)+2*(raw_pad))-1):((3*(raw_size)+2*(raw_pad))-1)]
         sec_3 = raw[0:(raw_size-1), ((3*(raw_size)+3*(raw_pad))-1):((4*(raw_size)+3*(raw_pad))-1)]
     
+    pyautogui.sleep(0.5)
     print('\033[;36m'+'[t] Loop Broken'+'\033[0;37m')
        
 
@@ -114,8 +117,8 @@ def sector1():
         lbls_img[0].configure(image=imgtk)
         lbls_img[0].after(1, sector1)
     else:
-        print('\033[;33m'+'[i] Stopping (From sector 1)'+'\033[0;37m')
-        stop()
+        if(terminated == False):
+            theSwitch(req=1)
         return
 
     
@@ -145,8 +148,8 @@ def sector2():
         lbls_img[1].configure(image=imgtk)
         lbls_img[1].after(1, sector2)
     else:
-        print('\033[;33m'+'[i] Stopping (From sector 2)'+'\033[0;37m')
-        stop()
+        if(terminated == False):
+            theSwitch(req=2)
         return
 
 
@@ -176,8 +179,8 @@ def sector3():
         lbls_img[2].configure(image=imgtk)
         lbls_img[2].after(1, sector3)
     else:
-        print('\033[;33m'+'[i] Stopping (From sector 3)'+'\033[0;37m')
-        stop()
+        if(terminated == False):
+            theSwitch(req=3)
         return
 
 
@@ -209,73 +212,91 @@ def sector4():
 
         lbls_img[3].after(1, sector4)
     else:
-        print('\033[;33m'+'[i] Stopping (From sector 4)'+'\033[0;37m')
-        stop()
+        if(terminated == False):
+            theSwitch(req=4)
         return
         
     
-def start():
-    global options, loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4
+def theSwitch(closing = False, req = None):
+    global options, loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4, terminated, lever
 
-    if (loop == True):
-        return
-    
-    options = {
-        "top": coord_y,
-        "left": coord_x,
-        "width": ((4*raw_size)+(3*raw_pad)),
-        "height": raw_size
-    }
-    loop = True
-    stream = ScreenGear(monitor=1, logging=True, **options).start()
-
-    procc_0 = threading.Thread(target=videoStream)
-    procc_1 = threading.Thread(target=sector1)
-    procc_2 = threading.Thread(target=sector2)
-    #procc_3 = threading.Thread(target=sector3)
-    #procc_4 = threading.Thread(target=sector4)
-
-    procc_0.start()
-    pyautogui.sleep(0.5)
-    procc_1.start()
-    procc_2.start()
-    #procc_3.start()
-    #procc_4.start()
-    
-def stop():
-    global loop, stream, procc_0, procc_1, procc_2, procc_3, procc_4, terminated
-
-    loop = False
-
-    if(terminated == False):
-        try:
-            stream.stop()
-        except:
-            print('\033[;33m'+'[i] Stream already stopped!'+'\033[0;37m')
+    if(lever == False and terminated):
+        if(loop == True):
+            print('\033[;36m'+'[i] Skipping theSwitch. loop is True.'+'\033[0;37m')
+            return
         
-        try:
-            procc_0.join()
-            procc_1.join()
-            procc_2.join()
-            #procc_3.join()
-            #procc_4.join()
-        except error:
-            print('\033[;31m'+'[w] Error. Something went wrong with multithreading.join()'+'\033[0;37m')
-            print(error)
-        finally:
-            procc_0 = None
-            procc_1 = None
-            procc_2 = None
-            procc_3 = None
-            procc_4 = None
+        options = {
+            "top": coord_y,
+            "left": coord_x,
+            "width": ((4*raw_size)+(3*raw_pad)),
+            "height": raw_size
+        }
+        loop = True
+        stream = ScreenGear(monitor=1, logging=True, **options).start()
 
-        stream = []
-        terminated = True
+        procc_0 = threading.Thread(target=videoStream)
+        procc_1 = threading.Thread(target=sector1)
+        procc_2 = threading.Thread(target=sector2)
+        #procc_3 = threading.Thread(target=sector3)
+        #procc_4 = threading.Thread(target=sector4)
+
+        procc_0.start()
+        pyautogui.sleep(0.5)
+        procc_1.start()
+        procc_2.start()
+        #procc_3.start()
+        #procc_4.start()
+
+        # Changing lever
+        terminated = False
+        lever = True
+
+        print('\033[4;34m'+'[i] Inicializated correctly'+'\033[0;37m')
+        return
+    elif((lever and terminated == False) or (closing)):
+        loop = False
+
+        if(req is not None):
+            print('\033[;33m'+f'[i] Stop requested (From sector {req})'+'\033[0;37m')
+
+        if(terminated == False):
+            try:
+                stream.stop()
+            except:
+                print('\033[;33m'+'[i] Stream already stopped.'+'\033[0;37m')
+            finally:
+                stream = []
+            
+            try:
+                procc_0.join()
+                procc_1.join()
+                procc_2.join()
+                #procc_3.join()
+                #procc_4.join()
+            except error:
+                print('\033[;31m'+'[w] Can not multithreading.join(); Maybe were already stopped.'+'\033[0;37m')
+                #print(error)
+            finally:
+                procc_0 = 0
+                procc_1 = 0
+                procc_2 = 0
+                procc_3 = 0
+                procc_4 = 0
+            
+            # Changing lever
+            terminated = True
+            lever = False
+
+            print('\033[4;34m'+'[i] Stopped correctly'+'\033[0;37m')
+            return
+    else:
+        print('\033[;36m'+'[i] theSwitch did not enter to any of the conditions. May be because terminated var.'+'\033[0;37m')
+        return
     
 def changeCoord():
     global coord_x, coord_y, loop
 
-    stop()
+    theSwitch()
     if(loop == False):
         coord_x = int(spn_B1.get())
         coord_y = int(spn_B2.get())
@@ -283,7 +304,7 @@ def changeCoord():
 def changeSizePad():
     global raw_pad, raw_size
 
-    stop()
+    theSwitch()
     if(loop == False):
         raw_size = int(spn_B3.get())
         raw_pad = int(spn_B4.get())
@@ -334,14 +355,11 @@ if(__name__ == '__main__'):
     f2 = Frame(f_c_0)
     f3 = Frame(f_c_0)
 
-    btn1 = Button(f2, text='Start', command = start)
-    btn2 = Button(f3, text='Stop', command = stop)
+    btn1 = Button(f2, text='Start / Stop', command = theSwitch)
 
     btn1.pack(padx=20)
-    btn2.pack(padx=20)
 
     f2.pack(side=RIGHT, pady=30)
-    f3.pack(side=LEFT, pady=30)
 
     f_c_0.pack()
     # -------------------  Frame 2 end  -------------------
@@ -438,4 +456,4 @@ if(__name__ == '__main__'):
 
     window.mainloop()
 
-    stop()
+    theSwitch(closing=True)
