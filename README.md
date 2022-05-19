@@ -2,4 +2,4 @@
 
 Hello there. Thanks for reading me.
 
-This project is about a bot for Friday Night Funkin' using screen video streaming with Python.
+This project is about a (buggy and laggy) bot for Friday Night Funkin' using screen video streaming with Python.
